@@ -109,11 +109,6 @@ class WC_Truevo_Gateway extends WC_Payment_Gateway {
      * You will need it if you want your custom credit card form, Step 4 is about it
      */
     public function payment_fields() {
-        //echo wc_get_checkout_url(). 'truevo-pay';
-        ?>
-<!--        <script src="https://test.truevo.eu/v1/paymentWidgets.js?checkoutId=<?php echo $this->request()->id; ?>'"></script>-->
-<!--        <form action="http://localhost/codup-products/checkout?place_order=truevo" class="paymentWidgets" data-brands="VISA MASTER AMEX"></form>-->
-        <?php
     }
 
     /*
@@ -137,49 +132,19 @@ class WC_Truevo_Gateway extends WC_Payment_Gateway {
      */
 
     public function process_payment($order_id) {
-//        $on_checkout = false;
-//        $pay_url = wc_get_endpoint_url( 'order-pay', $order_id, wc_get_checkout_url() );
-//        $order = wc_get_order($order_id);
-//		if ( $on_checkout ) {
-//			$pay_url = add_query_arg( 'key', $order->get_order_key(), $pay_url );
-//		} else {
-//			$pay_url = add_query_arg(
-//				array(
-//					'pay_for_order' => 'true',
-//					'key'           => $order->get_order_key(),
-//				),
-//				$pay_url
-//			);
-//		}
-        
+
         include_once 'class-truevo-gateway-request.php';
 
-		
-		$truevo_request = new WC_Gateway_Truevo_Request( $this );
-        $order = wc_get_order($order_id);
-        
-        // Mark as on-hold (we're awaiting the payment)
-       // $order->update_status('on-hold', __('Awaiting offline payment', 'wc-gateway-offline'));
+        $truevo_request = new WC_Gateway_Truevo_Request($this);
+        $order          = wc_get_order($order_id);
 
-        // Reduce stock levels
-        //$order->reduce_order_stock();
-
-        // Remove cart
-     //   WC()->cart->empty_cart();
-        
         // Return thankyou redirect
         return array(
             'result' => 'success',
-            'redirect' => $truevo_request->get_request_url( $order, $this->testmode ),
+            'redirect' => $truevo_request->get_request_url($order, $this->testmode),
         );
     }
 
-    /*
-     * In case you need a webhook, like PayPal IPN etc
-     */
-
-    public function webhook() {
-        
-    }
+    
 
 }
