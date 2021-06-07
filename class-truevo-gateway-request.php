@@ -9,28 +9,39 @@ class WC_Gateway_Truevo_Request {
         $this->gateway = $gateway;
     }
     
-    function truevo_request( $order ,$sandbox = false) {
+    /**
+     * Send request to truevo for request id.
+     * @param WC_Order $order
+     * @param bool $sandbox
+     * @return object
+     */
+    function truevo_request($order, $sandbox = false) {
         
+        $base_url = $this->gateway->base_url;
+      
         $order_total = $order->get_total();
-        $url = "https://test.truevo.eu/v1/checkouts";
-        if(!$sandbox){
-            $url = "https://truevo.eu/v1/checkouts";
-        }
-        
-        $data = "entityId=8ac7a4c779c0fcf10179c29f18d406d2" .
+        $url = $base_url . "/v1/checkouts";
+        $entity_id = $this->gateway->entity_id;
+        $bearer_token = $this->gateway->bearer_token;
+        $data = "entityId=$entity_id" .
             "&amount=$order_total" .
-            "&currency=USD" .
+            "&currency=" . get_option('woocommerce_currency') .
             "&paymentType=DB";
-
+        if ($this->enabled_test_mode == 'yes') {
+            $data .= "&testMode=INTERNAL";
+        }
+  
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Authorization:Bearer OGFjN2E0Y2E2OTZiOWZjNzAxNjk2ZDIyZjVkMTAzM2F8dHNFeHNjQmE4Wg=='));
+            'Authorization:Bearer '.$bearer_token));
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // this should be set to true in production
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $responseData = curl_exec($ch);
+        
+   
         if (curl_errno($ch)) {
             return curl_error($ch);
         }
@@ -46,10 +57,20 @@ class WC_Gateway_Truevo_Request {
      * @return string
      */
     public function get_request_url($order, $sandbox = true) {
-        $request_id = $this->truevo_request( $order, $sandbox )->id;
-        $this->endpoint = wc_get_checkout_url(). 'truevo-pay/'.$order->get_id().'/?truevo_request='.$request_id;
-        return $this->endpoint;
-         
+        $request = $this->truevo_request($order, $sandbox);
+        $request_id = '';
+        if( isset($request->id)){
+            $request_id = $request->id;
+            $this->endpoint = wc_get_checkout_url() . 'truevo-pay/' . $order->get_id() . '/?truevo_request=' . $request_id;
+            return $this->endpoint;
+        }else{
+            $logger = new WC_Logger();
+            $log_entry = print_r( $request, true );
+            $logger->add( 'truevo-gateway', $log_entry );
+            return $order->get_checkout_order_received_url();
+        }
+      
+        
     }
 
 }

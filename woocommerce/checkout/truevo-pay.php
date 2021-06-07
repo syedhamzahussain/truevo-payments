@@ -7,6 +7,34 @@ $truevo_request = '';
 if (isset($_GET['truevo_request'])) {
     $truevo_request = $_GET['truevo_request'];
 }
+
+$method = $order->get_payment_method();
+$gateway = WC()->payment_gateways->payment_gateways()[$method];
+if ($method === 'truevo') {
+    $truevo_base_url = $gateway->base_url;
+} else {
+    return;
+}
 ?>
-<script src="https://test.truevo.eu/v1/paymentWidgets.js?checkoutId=<?php echo $truevo_request; ?>'"></script>
+<script>
+    var wpwlOptions = {
+            billingAddress: {
+                    country: '<?= $order->get_billing_country() ?>',
+                    state: '<?= $order->get_billing_state() ?>',
+                    city: '<?= $order->get_billing_city() ?>',
+                    postcode: '<?= $order->get_billing_postcode() ?>',
+                    street1: '<?= $order->get_billing_address_1() ?>',
+                    street2: '<?= $order->get_billing_address_2() ?>'
+            },
+            mandatoryBillingFields: {
+                    country: true,
+                    state: true,
+                    city: true,
+                    postcode: true,
+                    street1: true,
+                    street2: false
+            }
+    }</script>
+<script
+src="<?php echo $truevo_base_url ?>/v1/paymentWidgets.js?checkoutId=<?php echo $truevo_request; ?>'"></script>
 <form action="<?= $order->get_checkout_order_received_url() ?>" class="paymentWidgets" data-brands="VISA MASTER AMEX"></form>
