@@ -18,7 +18,7 @@ class WC_Gateway_Truevo_Request {
     function truevo_request($order, $sandbox = false) {
         
         $base_url = $this->gateway->base_url;
-      
+        
         $order_total = $order->get_total();
         $url = $base_url . "/v1/checkouts";
         $entity_id = $this->gateway->entity_id;
@@ -30,7 +30,7 @@ class WC_Gateway_Truevo_Request {
         if ($this->enabled_test_mode == 'yes') {
             $data .= "&testMode=INTERNAL";
         }
-  
+        
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
@@ -45,8 +45,16 @@ class WC_Gateway_Truevo_Request {
         if (curl_errno($ch)) {
             return curl_error($ch);
         }
+       
         curl_close($ch);
-        return json_decode($responseData);
+        
+        $response  = json_decode($responseData);
+        if( empty($response)){
+            $logger = new WC_Logger();
+            $log_entry = print_r( $responseData, true );
+            $logger->add( 'truevo-gateway', $log_entry );
+        }
+        return $response;
     }
 
     /**
@@ -58,6 +66,7 @@ class WC_Gateway_Truevo_Request {
      */
     public function get_request_url($order, $sandbox = true) {
         $request = $this->truevo_request($order, $sandbox);
+       
         $request_id = '';
         if( isset($request->id)){
             $request_id = $request->id;

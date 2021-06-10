@@ -24,11 +24,13 @@ if ($method === 'truevo') {
                     city: '<?= $order->get_billing_city() ?>',
                     postcode: '<?= $order->get_billing_postcode() ?>',
                     street1: '<?= $order->get_billing_address_1() ?>',
-                    street2: '<?= $order->get_billing_address_2() ?>'
+                    street2: '<?= $order->get_billing_address_2() ?>',
+                    email: 'ssss@sss.sss'
             },
+                  
             mandatoryBillingFields: {
                     country: true,
-                    state: true,
+                    state: false,
                     city: true,
                     postcode: true,
                     street1: true,

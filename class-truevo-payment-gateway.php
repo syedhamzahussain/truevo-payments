@@ -77,7 +77,10 @@ class WC_Truevo_Gateway extends WC_Payment_Gateway {
             ),
             'base_url' => array(
                 'title' => 'Base URL',
-                'type' => 'url'
+                'type' => 'url',
+                'description' => 'Enter base url like https://test.truevo.eu without version i.e v1 or v2',
+                'default' => 'https://truevo.eu',
+                
             ),
             'enabled_test_mode' => array(
                 'title' => 'Enable/Disable',
@@ -126,11 +129,14 @@ class WC_Truevo_Gateway extends WC_Payment_Gateway {
         $truevo_request = new WC_Gateway_Truevo_Request($this);
         $order          = wc_get_order($order_id);
         
-        // Return thankyou redirect
-        return  array(
+        $response = array(
             'result' => 'success',
             'redirect' => $truevo_request->get_request_url($order, $this->testmode),
         );
+        
+       
+        // Return thankyou redirect
+        return  $response;
     }
 
     
