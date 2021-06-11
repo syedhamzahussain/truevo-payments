@@ -1,7 +1,7 @@
 <?php
 global $wp;
-$order_id       = $wp->query_vars['truevo-pay'];
-$order          = wc_get_order($order_id);
+$order_id = $wp->query_vars['truevo-pay'];
+$order = wc_get_order($order_id);
 $truevo_request = '';
 
 if (isset($_GET['truevo_request'])) {
@@ -15,6 +15,9 @@ if ($method === 'truevo') {
 } else {
     return;
 }
+
+$redirect_url = wc_get_checkout_url() . 'truevo-pay/' . $order->get_id() . '/?truevo_request=' . $truevo_request;
+wc_print_notices();
 ?>
 <script>
     var wpwlOptions = {
@@ -27,7 +30,7 @@ if ($method === 'truevo') {
                     street2: '<?= $order->get_billing_address_2() ?>',
                     email: 'ssss@sss.sss'
             },
-                  
+
             mandatoryBillingFields: {
                     country: true,
                     state: false,
@@ -36,7 +39,8 @@ if ($method === 'truevo') {
                     street1: true,
                     street2: false
             }
-    }</script>
+    }
+</script>
 <script
 src="<?php echo $truevo_base_url ?>/v1/paymentWidgets.js?checkoutId=<?php echo $truevo_request; ?>'"></script>
-<form action="<?= $order->get_checkout_order_received_url() ?>" class="paymentWidgets" data-brands="VISA MASTER AMEX"></form>
+<form action="<?= $redirect_url ?>" class="paymentWidgets" data-brands="VISA MASTER AMEX"></form>

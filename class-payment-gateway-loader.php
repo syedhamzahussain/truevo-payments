@@ -12,26 +12,15 @@ class Truevo_Loader {
 
     function mark_payment_complete() {
         global $wp;
-
-        if (isset($wp->query_vars['order-received'])) {
-            wc_nocache_headers();
-            ob_start();
-
-            // Pay for existing order.
-            $order_key = wp_unslash($_GET['key']);
-            $order_id = absint($wp->query_vars['order-received']);
+        if (isset($wp->query_vars['truevo-pay'])) {
+            $order_id = absint($wp->query_vars['truevo-pay']);
             $order = wc_get_order($order_id);
 
-            if ($order_id === $order->get_id() && hash_equals($order->get_order_key(), $order_key) && $order->needs_payment()) {
-
-
+            if ($order_id === $order->get_id() && $order->needs_payment()) {
                 if ('truevo' === $order->get_payment_method() && isset($_GET['id']) && !empty($_GET['id'])) {
                     $transaction_id = $_GET['id'];
                     if (!$order->has_status(array('processing', 'completed'))) {
-
-                        $note = "Trevo charge complete (Charge ID:$transaction_id)";
-                        $order->add_order_note($note);
-                        $order->payment_complete($transaction_id);
+                        $this->verify_payment($transaction_id, $order);
                     }
                 }
             }
@@ -50,6 +39,36 @@ class Truevo_Loader {
         }
 
         return $template;
+    }
+
+    function verify_payment($transaction_id, $order) {
+        
+        include_once 'class-truevo-gateway-request.php';
+        $method = $order->get_payment_method();
+        $gateway = WC()->payment_gateways->payment_gateways()[$method];
+
+        $truevo_request = new WC_Gateway_Truevo_Request($gateway);
+        $response = $truevo_request->payment_request($transaction_id);
+
+        if (!isset($response->id)) {
+            return;
+        }
+
+        $code = $response->result->code;
+        $url = '';
+        if (preg_match("/^(000.000.|000.100.1|000.[36])/", $code) || preg_match("/^(000.400.0[^3]|000.400.[0-1]{2}0)/", $code)) {
+            $note = "Trevo charge complete (Charge ID:$transaction_id)";
+            $order->add_order_note($note);
+            $order->payment_complete($transaction_id);
+            $url = $order->get_checkout_order_received_url();
+        } else {
+            $note = $response->result->description;
+            wc_add_notice($note, 'error');
+            $order->add_order_note("Trevo charge Failed: " . $note);
+            $url = $truevo_request->get_request_url($order, false);
+        }
+        wp_redirect($url);
+        exit();
     }
 
 }
