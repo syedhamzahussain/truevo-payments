@@ -27,8 +27,7 @@ wc_print_notices();
                     city: '<?= $order->get_billing_city() ?>',
                     postcode: '<?= $order->get_billing_postcode() ?>',
                     street1: '<?= $order->get_billing_address_1() ?>',
-                    street2: '<?= $order->get_billing_address_2() ?>',
-                    email: 'ssss@sss.sss'
+                    street2: '<?= $order->get_billing_address_2() ?>'
             },
 
             mandatoryBillingFields: {
