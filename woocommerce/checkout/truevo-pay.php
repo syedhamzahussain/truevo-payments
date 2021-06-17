@@ -21,6 +21,11 @@ wc_print_notices();
 ?>
 <script>
     var wpwlOptions = {
+        onReady: function() {
+                    var  customer_email = '<?= $order->get_billing_email() ?>';
+                        var customerEmailHtml = '<div class="wpwl-label wpwl-label-custom" style="display:inline-block">Email Address: </div>' + '<div class="wpwl-wrapper wpwl-wrapper-custom" style="display:inline-block">' + '<input name="customer.email" value="'+customer_email+'"  />' + '</div>';
+                        jQuery('form.wpwl-form-card').find('.wpwl-button').before(customerEmailHtml);
+                },
             billingAddress: {
                     country: '<?= $order->get_billing_country() ?>',
                     state: '<?= $order->get_billing_state() ?>',
@@ -38,6 +43,7 @@ wc_print_notices();
                     street1: true,
                     street2: false
             }
+             
     }
 </script>
 <script

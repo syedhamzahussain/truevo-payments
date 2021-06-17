@@ -8,6 +8,7 @@ class Truevo_Loader {
     public function __construct() {
         add_action('wp', array($this, 'mark_payment_complete'), 20);
         add_filter('wc_get_template', array($this, 'override_template'), 99, 5);
+        add_filter('woocommerce_checkout_redirect_empty_cart', array( $this, 'prevent_redirect'), 99);
     }
 
     function mark_payment_complete() {
@@ -69,6 +70,28 @@ class Truevo_Loader {
         }
         wp_redirect($url);
         exit();
+    }
+    
+    /**
+     * Prevent redirection on checkout if user is paying for pending order.
+     * @global object $wp
+     * @param string $redirect
+     * @return boolean
+     */
+    function prevent_redirect( $redirect ){
+        global $wp;
+
+        if (isset($wp->query_vars['truevo-pay'])) {
+            $order_id = absint($wp->query_vars['truevo-pay']);
+            $order = wc_get_order($order_id);
+
+            if ( $order->needs_payment()) {
+                if ('truevo' === $order->get_payment_method() && isset($_GET['truevo_request']) && !empty($_GET['truevo_request'])) {
+                    return false;
+                }
+            }
+        }
+        return $redirect;
     }
 
 }
