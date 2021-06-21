@@ -24,9 +24,11 @@ class WC_Gateway_Truevo_Request {
         $entity_id = $this->gateway->entity_id;
         $bearer_token = $this->gateway->bearer_token;
         $order_currency = $order->get_currency();
+        $order_number = $order->get_order_number();
         $data = "entityId=$entity_id" .
             "&amount=$order_total" .
             "&currency=" . $order_currency .
+            "&merchantTransactionId=".$order_number.
             "&paymentType=DB";
         if ($this->enabled_test_mode == 'yes') {
             $data .= "&testMode=INTERNAL";

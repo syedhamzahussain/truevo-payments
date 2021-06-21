@@ -4,7 +4,7 @@
  * Description: Truevo Payment Gateway provide you Truevo Payment Integration.
  * Author: Syed Hamza Hussain
  * Author URI: https://www.upwork.com/fl/syedhamzahussain
- * Version: 1.1.1.7
+ * Version: 1.1.1.8
  *
  */
 

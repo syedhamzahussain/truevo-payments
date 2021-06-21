@@ -32,6 +32,7 @@ class WC_Truevo_Gateway extends WC_Payment_Gateway {
         $this->entity_id    = $this->get_option('entity_id');
         $this->bearer_token = $this->get_option('bearer_token');
         $this->base_url     = $this->get_option('base_url');
+        $this->custom_html     = $this->get_option('custom_html');
 
 
        
@@ -80,6 +81,14 @@ class WC_Truevo_Gateway extends WC_Payment_Gateway {
                 'type' => 'url',
                 'description' => 'Enter base url like https://test.truevo.eu without version i.e v1 or v2',
                 'default' => 'https://truevo.eu',
+                
+            ),
+            'custom_html' => array(
+                'title' => 'Custom HTML',
+                'type' => 'textarea',
+                'description' => '',
+                'value' =>$this->custom_html,
+                'attributes' => [ "cols" => 10]
                 
             ),
             'enabled_test_mode' => array(

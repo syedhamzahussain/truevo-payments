@@ -22,9 +22,11 @@ wc_print_notices();
 <script>
     var wpwlOptions = {
         onReady: function() {
-                    var  customer_email = '<?= $order->get_billing_email() ?>';
-                        var customerEmailHtml = '<div class="wpwl-label wpwl-label-custom" style="display:inline-block">Email Address: </div>' + '<div class="wpwl-wrapper wpwl-wrapper-custom" style="display:inline-block">' + '<input name="customer.email" value="'+customer_email+'"  />' + '</div>';
+                        let customer_email = '<?= $order->get_billing_email() ?>';
+                        let custom_html= '<class="wpwl-group wpwl-group-custom-html wpwl-clearfix"><?= ($gateway->custom_html) ?></div>';
+                        let customerEmailHtml = '<div class="wpwl-label wpwl-label-custom" style="display:inline-block">Email Address: </div>' + '<div class="wpwl-wrapper wpwl-wrapper-custom" style="display:inline-block">' + '<input name="customer.email" value="'+customer_email+'"  />' + '</div>';
                         jQuery('form.wpwl-form-card').find('.wpwl-button').before(customerEmailHtml);
+                      //  jQuery('form.wpwl-form-card').find('.wpwl-group-submit').after(custom_html);
                 },
             billingAddress: {
                     country: '<?= $order->get_billing_country() ?>',
@@ -49,3 +51,4 @@ wc_print_notices();
 <script
 src="<?php echo $truevo_base_url ?>/v1/paymentWidgets.js?checkoutId=<?php echo $truevo_request; ?>'"></script>
 <form action="<?= $redirect_url ?>" class="paymentWidgets" data-brands="VISA MASTER AMEX"></form>
+<div><?php echo isset($gateway->custom_html)?$gateway->custom_html:'' ;?></div>
